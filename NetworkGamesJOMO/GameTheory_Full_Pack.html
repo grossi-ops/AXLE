@@ -20,7 +20,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);
-  font-size:1.08rem;line-height:1.72;overflow-x:clip}
+  font-size:1.08rem;line-height:1.72;overflow-x:hidden}
 
 /* ── HERO ── */
 .hero{
@@ -189,10 +189,10 @@ p{margin-bottom:1rem}
 
 /* ── CANVAS CHARTS ── */
 .chart-wrap{margin:2rem 0;background:#f8f6f0;border:1px solid var(--border);
-  border-radius:8px;padding:1rem;min-height:100px;}
+  border-radius:8px;padding:1rem;}
 .chart-title{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;
   text-transform:uppercase;color:var(--gray);margin-bottom:.8rem}
-canvas{display:block;width:100%;border-radius:4px;min-height:4px}
+canvas{display:block;width:100%;border-radius:4px}
 .chart-legend{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.6rem;
   font-family:var(--mono);font-size:.7rem;color:var(--gray)}
 .leg-dot{display:inline-block;width:10px;height:10px;border-radius:50%;
@@ -883,44 +883,21 @@ footer a{color:var(--gold);text-decoration:none}
 </footer>
 
 <script>
-// ── HELPERS ───────────────────────────────────────────────────────────────
-// Derive drawing dimensions directly from canvas buffer — never from offsetWidth/Height,
-// which can be stale until the browser reflows after cv.width is set.
-function cvDims(cv){ const dpr=devicePixelRatio||1; return [cv.width/dpr, cv.height/dpr]; }
-function cvResize(cv, ctx, hAttr){
-  const dpr = devicePixelRatio||1;
-  const parent = cv.parentElement;
-  const w = parent.getBoundingClientRect().width || parent.offsetWidth || 700;
-  const h = hAttr || parseInt(cv.getAttribute('height')||'320');
-  cv.width  = Math.round(w * dpr);
-  cv.height = Math.round(h * dpr);
-  cv.style.width  = w + 'px';
-  cv.style.height = h + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
 // ── STAR FIELD ────────────────────────────────────────────────────────────
 (function(){
   const cv = document.getElementById('starCanvas');
   const ctx = cv.getContext('2d');
+  function resize(){ cv.width=cv.offsetWidth*devicePixelRatio; cv.height=cv.offsetHeight*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); draw(); }
   const stars = Array.from({length:200}, ()=>([Math.random(), Math.random(), Math.random()*1.5+0.3, Math.random()*0.8+0.2]));
-  function resize(){
-    const dpr=devicePixelRatio||1;
-    const w=cv.parentElement.offsetWidth||window.innerWidth;
-    const h=cv.parentElement.offsetHeight||window.innerHeight;
-    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
-    cv.style.width=w+'px'; cv.style.height=h+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0); draw();
-  }
   function draw(){
-    const [W,H]=cvDims(cv);
-    ctx.clearRect(0,0,W,H);
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const W=cv.offsetWidth, H=cv.offsetHeight;
     stars.forEach(([x,y,r,a])=>{
       ctx.beginPath(); ctx.arc(x*W, y*H, r, 0, Math.PI*2);
       ctx.fillStyle=`rgba(255,255,255,${a})`; ctx.fill();
     });
   }
-  new ResizeObserver(resize).observe(cv.parentElement); resize();
+  new ResizeObserver(resize).observe(cv); resize();
 })();
 
 // ── ORBIT CANVAS ──────────────────────────────────────────────────────────
@@ -928,10 +905,9 @@ function cvResize(cv, ctx, hAttr){
   const cv = document.getElementById('orbitCanvas');
   const ctx = cv.getContext('2d');
   let t = 0;
-  function resize(){ cvResize(cv, ctx, 320); }
+  function resize(){ const r=cv.getBoundingClientRect(); cv.width=r.width*devicePixelRatio; cv.height=r.height*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); }
   function draw(){
-    const [W,H]=cvDims(cv);
-    if(!W||!H){requestAnimationFrame(draw);return;}
+    const W=cv.offsetWidth, H=cv.offsetHeight;
     ctx.fillStyle='#f8f6f0'; ctx.fillRect(0,0,W,H);
     const cx=W/2, cy=H/2;
 
@@ -995,10 +971,9 @@ function cvResize(cv, ctx, hAttr){
 (function(){
   const cv = document.getElementById('networkCanvas');
   const ctx = cv.getContext('2d');
-  function resize(){ cvResize(cv, ctx, 200); draw(); }
+  function resize(){ const r=cv.getBoundingClientRect(); cv.width=r.width*devicePixelRatio; cv.height=r.height*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); }
   function draw(){
-    const [W,H]=cvDims(cv);
-    if(!W||!H)return;
+    const W=cv.offsetWidth, H=cv.offsetHeight;
     ctx.fillStyle='#f8f6f0'; ctx.fillRect(0,0,W,H);
     const nodes=[
       {x:W*0.15,y:H*0.5,label:'A',sub:'Production\nBasin',col:'#639922'},
@@ -1042,10 +1017,9 @@ function cvResize(cv, ctx, hAttr){
 (function(){
   const cv = document.getElementById('valueGapCanvas');
   const ctx = cv.getContext('2d');
-  function resize(){ cvResize(cv, ctx, 300); draw(); }
+  function resize(){ const r=cv.getBoundingClientRect(); cv.width=r.width*devicePixelRatio; cv.height=r.height*devicePixelRatio; ctx.scale(devicePixelRatio,devicePixelRatio); }
   function draw(){
-    const [W,H]=cvDims(cv);
-    if(!W||!H)return;
+    const W=cv.offsetWidth, H=cv.offsetHeight;
     const pad={l:55,r:20,t:20,b:40};
     const iW=W-pad.l-pad.r, iH=H-pad.t-pad.b;
     ctx.fillStyle='#f8f6f0'; ctx.fillRect(0,0,W,H);

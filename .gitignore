@@ -23,3 +23,15 @@ env/
 *.swo
 .idea/
 .vscode/
+.lake/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz

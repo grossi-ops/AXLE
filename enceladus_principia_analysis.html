@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
 <script>
+mjx-container { overflow-x: auto; max-width: 100%; display: block !important; }
+mjx-container[display="true"] { overflow-x: auto; }
 MathJax = {
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']], tags: 'ams' },
   options: { skipHtmlTags: ['script','noscript','style','textarea'] }
@@ -162,6 +164,7 @@ p:last-child { margin-bottom: 0; }
   padding: 1.1rem 1.3rem;
   margin: 1.4rem 0;
   position: relative;
+  overflow-x: auto;
 }
 .env-box.theorem { border-color: var(--teal); background: rgba(26,100,87,0.04); }
 .env-box.definition { border-color: var(--mid); background: rgba(90,110,138,0.04); }
